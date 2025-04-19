@@ -99,7 +99,8 @@ export default {
   methods: {
     async submitForm() {
       try {
-        const res = await axios.post('http://localhost:5000/api/register', this.form);
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        const res = await axios.post(`${API_URL}/api/register`, this.form);
         this.$emit('registration-success');
         alert('Registration successful! Welcome to e-Yantra Competition.');
         this.resetForm();
