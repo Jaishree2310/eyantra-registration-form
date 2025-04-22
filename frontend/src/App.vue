@@ -9,9 +9,7 @@
   </template>
   
   <script>
-  import Header from './components/Header.vue';
   import RegistrationForm from './components/RegistrationForm.vue';
-  import Footer from './components/Footer.vue';
   
   export default {
     name: 'App',

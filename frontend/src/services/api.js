@@ -24,7 +24,7 @@ function fetchWithTimeout(resource, options) {
 async function apiClient(endpoint, options = {}) {
   const headers = createHeaders();
   try {
-    const response = await fetchWithTimeout(baseURL + endpoint, {
+    const response = await fetchWithTimeout(`${baseURL}${endpoint}`, {
       ...options,
       headers,
     });
