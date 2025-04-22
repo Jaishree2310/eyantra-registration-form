@@ -1,6 +1,5 @@
 <?php
 // routes/api.php
-use App\Http\Controllers\API\EmailVerificationController;
 use App\Http\Controllers\API\ReferenceDataController;
 use App\Http\Controllers\API\RegistrationController;
 use Illuminate\Support\Facades\Route;
@@ -20,10 +19,6 @@ use Illuminate\Support\Facades\Route;
 Route::get('/countries', [ReferenceDataController::class, 'getCountries']);
 Route::get('/colleges', [ReferenceDataController::class, 'getColleges']);
 Route::get('/departments', [ReferenceDataController::class, 'getDepartments']);
-
-// Email verification endpoints
-Route::post('/verify-email', [EmailVerificationController::class, 'sendVerification']);
-Route::post('/verify-token', [EmailVerificationController::class, 'verifyEmail']);
 
 // Registration endpoint
 Route::post('/register', [RegistrationController::class, 'register']);

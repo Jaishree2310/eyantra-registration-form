@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,8 +17,6 @@ return new class extends Migration
             $table->foreignId('department_id')->constrained();
             $table->foreignId('college_id')->constrained();
             $table->foreignId('country_id')->constrained();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->boolean('is_registered')->default(false);
             $table->timestamps();
         });
     }

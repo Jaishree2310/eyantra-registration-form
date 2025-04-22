@@ -18,14 +18,10 @@ class User extends Authenticatable
         'year',
         'department_id',
         'college_id',
-        'country_id',
-        'email_verified_at',
-        'is_registered'
+        'country_id'
     ];
 
     protected $casts = [
-        'email_verified_at' => 'datetime',
-        'is_registered' => 'boolean',
         'year' => 'integer',
     ];
 

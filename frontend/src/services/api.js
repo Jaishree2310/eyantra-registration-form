@@ -6,12 +6,9 @@ const defaultHeaders = {
 };
 const timeout = 10000; // 10 seconds timeout
 
-// Helper function to add auth token to headers
+// Helper function to add auth token to headers (can remove if not needed)
 function createHeaders() {
-  const token = localStorage.getItem('auth_token');
-  return token
-    ? { ...defaultHeaders, Authorization: `Bearer ${token}` }
-    : defaultHeaders;
+  return defaultHeaders;
 }
 
 // Helper function for timeout with fetch
@@ -73,13 +70,7 @@ export default {
         method: 'POST',
         body: JSON.stringify(formData),
       });
-    },
-    verifyEmail(email) {
-      return apiClient('/verify-email', {
-        method: 'POST',
-        body: JSON.stringify({ email }),
-      });
-    },
+    }
   },
 
   // Reference data endpoints

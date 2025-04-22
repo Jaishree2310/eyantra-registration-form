@@ -12,25 +12,16 @@ class RegistrationController extends Controller
     {
         $data = $request->validated();
         
-        // Check if email is verified
-        $user = User::where('email', $data['email'])->first();
-        
-        if (!$user || !$user->email_verified_at) {
-            return response()->json([
-                'message' => 'Email verification required before registration'
-            ], 403);
-        }
-        
-        // Update user details
-        $user->update([
+        // Create a new user
+        $user = User::create([
             'name' => $data['name'],
+            'email' => $data['email'],
             'contact_number' => $data['contact_number'],
             'gender' => $data['gender'],
             'year' => $data['year'],
             'department_id' => $data['department_id'],
             'college_id' => $data['college_id'],
-            'country_id' => $data['country_id'],
-            'is_registered' => true
+            'country_id' => $data['country_id']
         ]);
         
         return response()->json([

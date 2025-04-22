@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   # PHP Service
@@ -20,7 +19,7 @@ services:
     container_name: eyantra-webserver
     restart: unless-stopped
     ports:
-      - "8000:80"
+      - "8001:80"
     volumes:
       - ./backend:/var/www
       - ./backend/.docker/nginx/conf.d:/etc/nginx/conf.d
@@ -46,15 +45,6 @@ services:
     networks:
       - eyantra-network
 
-  # MailHog Service
-  mailhog:
-    image: mailhog/mailhog
-    container_name: eyantra-mailhog
-    ports:
-      - "1025:1025" # SMTP server
-      - "8025:8025" # Web UI
-    networks:
-      - eyantra-network
 
 networks:
   eyantra-network:
