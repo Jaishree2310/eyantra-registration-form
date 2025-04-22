@@ -1,5 +1,5 @@
 // Base configuration
-const baseURL = process.env.VUE_APP_API_URL || '/api';
+const baseURL = process.env.VUE_APP_API_URL || 'http://localhost:8000/api';
 const defaultHeaders = {
   'Content-Type': 'application/json',
   'Accept': 'application/json',
@@ -17,13 +17,20 @@ function fetchWithTimeout(resource, options) {
   const id = setTimeout(() => controller.abort(), timeout);
   const signal = controller.signal;
 
-  return fetch(resource, { ...options, signal }).finally(() => clearTimeout(id));
+  return fetch(resource, { 
+    ...options, 
+    signal,
+    mode: 'cors', // Add CORS mode
+    credentials: 'same-origin'
+  }).finally(() => clearTimeout(id));
 }
 
 // Helper function to handle request and response logic
 async function apiClient(endpoint, options = {}) {
   const headers = createHeaders();
   try {
+    console.log(`Making ${options.method || 'GET'} request to: ${baseURL}${endpoint}`);
+    
     const response = await fetchWithTimeout(`${baseURL}${endpoint}`, {
       ...options,
       headers,
