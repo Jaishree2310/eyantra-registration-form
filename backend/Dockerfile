@@ -44,12 +44,27 @@ RUN mkdir -p /var/www/storage/app/public \
     /var/www/storage/framework/testing \
     /var/www/storage/framework/views \
     /var/www/storage/logs \
-    /var/www/bootstrap/cache
+    /var/www/bootstrap/cache \
+    /var/www/routes
+
+# Create essential Laravel files if they don't exist
+RUN touch /var/www/routes/web.php
+RUN touch /var/www/routes/console.php
+
+# Add content to the web.php file
+RUN echo '<?php\n\nuse Illuminate\\Support\\Facades\\Route;\n\nRoute::get(\"/\", function () {\n    return response()->json([\"message\" => \"e-Yantra Competition API\"]);\n});' > /var/www/routes/web.php
+
+# Add content to the console.php file
+RUN echo '<?php\n\nuse Illuminate\\Foundation\\Inspiring;\nuse Illuminate\\Support\\Facades\\Artisan;\n\nArtisan::command(\"inspire\", function () {\n    $this->comment(Inspiring::quote());\n})->purpose(\"Display an inspiring quote\");' > /var/www/routes/console.php
 
 # Set proper permissions
 RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
-RUN chown -R www:www /var/www/storage /var/www/bootstrap/cache
 RUN chown -R www:www /var/www
+
+# Ensure the log file exists and is writable
+RUN touch /var/www/storage/logs/laravel.log
+RUN chmod 664 /var/www/storage/logs/laravel.log
+RUN chown www:www /var/www/storage/logs/laravel.log
 
 # Change current user to www
 USER www
@@ -61,9 +76,6 @@ RUN composer install --no-scripts
 EXPOSE 9000
 USER root
 
-# The composer dump-autoload and artisan commands will be run at container startup time
-# rather than during image build
-
 # Create a startup script
 RUN echo '#!/bin/sh\n\
 if [ ! -f .env ]; then\n\
@@ -72,6 +84,8 @@ fi\n\
 php artisan key:generate --force || true\n\
 php artisan package:discover --ansi || true\n\
 php artisan storage:link || true\n\
+chmod -R 775 /var/www/storage /var/www/bootstrap/cache\n\
+chown -R www:www /var/www/storage /var/www/bootstrap/cache\n\
 exec php-fpm\n\
 ' > /usr/local/bin/start-container && \
 chmod +x /usr/local/bin/start-container
