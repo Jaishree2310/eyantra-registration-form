@@ -30,16 +30,12 @@ RUN docker-php-ext-install gd
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Add user for Laravel application
-RUN groupadd -g 1000 www
-RUN useradd -u 1000 -ms /bin/bash -g www www
-
 # Copy existing application directory contents
-COPY --chown=www:www . /var/www
+COPY . /var/www
 
 # Create required directories that might be missing in the repo
 RUN mkdir -p /var/www/storage/app/public \
-    /var/www/storage/framework/cache \
+    /var/www/storage/framework/cache/data \
     /var/www/storage/framework/sessions \
     /var/www/storage/framework/testing \
     /var/www/storage/framework/views \
@@ -51,32 +47,32 @@ RUN mkdir -p /var/www/storage/app/public \
 RUN touch /var/www/routes/web.php
 RUN touch /var/www/routes/console.php
 
-# Add content to the web.php file
+# Add content to the web.php file if it's empty
 RUN echo '<?php\n\nuse Illuminate\\Support\\Facades\\Route;\n\nRoute::get(\"/\", function () {\n    return response()->json([\"message\" => \"e-Yantra Competition API\"]);\n});' > /var/www/routes/web.php
 
-# Add content to the console.php file
+# Add content to the console.php file if it's empty
 RUN echo '<?php\n\nuse Illuminate\\Foundation\\Inspiring;\nuse Illuminate\\Support\\Facades\\Artisan;\n\nArtisan::command(\"inspire\", function () {\n    $this->comment(Inspiring::quote());\n})->purpose(\"Display an inspiring quote\");' > /var/www/routes/console.php
 
-# Set proper permissions
-RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
-RUN chown -R www:www /var/www
+# Set proper permissions for Laravel directories and files
+RUN chown -R www-data:www-data /var/www
+RUN find /var/www -type f -exec chmod 644 {} \;
+RUN find /var/www -type d -exec chmod 755 {} \;
+RUN chmod -R 755 /var/www/storage /var/www/bootstrap/cache
 
 # Ensure the log file exists and is writable
 RUN touch /var/www/storage/logs/laravel.log
 RUN chmod 664 /var/www/storage/logs/laravel.log
-RUN chown www:www /var/www/storage/logs/laravel.log
-
-# Change current user to www
-USER www
+RUN chown www-data:www-data /var/www/storage/logs/laravel.log
 
 # Install dependencies with --no-scripts to prevent artisan commands from running during build
+USER www-data
 RUN composer install --no-scripts
 
-# Expose port 9000 and start php-fpm server
-EXPOSE 9000
+# Expose port 9000 and go back to root user for startup script
 USER root
+EXPOSE 9000
 
-# Create a startup script
+# Create a startup script (without overriding permissions)
 RUN echo '#!/bin/sh\n\
 if [ ! -f .env ]; then\n\
     cp .env.example .env || true\n\
@@ -84,9 +80,8 @@ fi\n\
 php artisan key:generate --force || true\n\
 php artisan package:discover --ansi || true\n\
 php artisan storage:link || true\n\
-chmod -R 775 /var/www/storage /var/www/bootstrap/cache\n\
-chown -R www:www /var/www/storage /var/www/bootstrap/cache\n\
-exec php-fpm\n\
+# No chown/chmod here that would override what we set in the Dockerfile\n\
+php-fpm\n\
 ' > /usr/local/bin/start-container && \
 chmod +x /usr/local/bin/start-container
 
