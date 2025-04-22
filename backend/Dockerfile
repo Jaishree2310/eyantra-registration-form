@@ -34,21 +34,8 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 RUN groupadd -g 1000 www
 RUN useradd -u 1000 -ms /bin/bash -g www www
 
-# Copy composer.json and composer.lock first to leverage Docker cache
-COPY --chown=www:www composer.json composer.lock* ./
-
-# Install dependencies (without running scripts)
-RUN if [ -f composer.lock ]; then \
-        composer install --no-scripts --no-autoloader; \
-    fi
-
 # Copy existing application directory contents
 COPY --chown=www:www . /var/www
-
-# Generate optimized autoload files if composer was previously run
-RUN if [ -f composer.lock ]; then \
-        composer dump-autoload --optimize; \
-    fi
 
 # Create required directories that might be missing in the repo
 RUN mkdir -p /var/www/storage/app/public \
@@ -67,9 +54,26 @@ RUN chown -R www:www /var/www
 # Change current user to www
 USER www
 
+# Install dependencies with --no-scripts to prevent artisan commands from running during build
 RUN composer install --no-scripts
 
 # Expose port 9000 and start php-fpm server
 EXPOSE 9000
 USER root
-CMD ["php-fpm"]
+
+# The composer dump-autoload and artisan commands will be run at container startup time
+# rather than during image build
+
+# Create a startup script
+RUN echo '#!/bin/sh\n\
+if [ ! -f .env ]; then\n\
+    cp .env.example .env || true\n\
+fi\n\
+php artisan key:generate --force || true\n\
+php artisan package:discover --ansi || true\n\
+php artisan storage:link || true\n\
+exec php-fpm\n\
+' > /usr/local/bin/start-container && \
+chmod +x /usr/local/bin/start-container
+
+CMD ["/usr/local/bin/start-container"]
