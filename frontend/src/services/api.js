@@ -4,7 +4,7 @@ const defaultHeaders = {
   'Content-Type': 'application/json',
   'Accept': 'application/json',
 };
-const timeout = 10000; // 10 seconds timeout
+const timeout = 30000; // Increased timeout to 30 seconds
 
 // Helper function to add auth token to headers (can remove if not needed)
 function createHeaders() {
@@ -21,7 +21,7 @@ function fetchWithTimeout(resource, options) {
     ...options, 
     signal,
     mode: 'cors', // Add CORS mode
-    credentials: 'same-origin'
+    credentials: 'omit' // Changed from 'same-origin' to 'omit' to fix CORS issues
   }).finally(() => clearTimeout(id));
 }
 
@@ -35,6 +35,9 @@ async function apiClient(endpoint, options = {}) {
       ...options,
       headers,
     });
+
+    // For debugging
+    console.log(`Response status: ${response.status}`);
 
     if (!response.ok) {
       // Handle specific error status codes

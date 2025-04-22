@@ -62,10 +62,14 @@ RUN mkdir -p /var/www/storage/app/public \
 # Set proper permissions
 RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 RUN chown -R www:www /var/www/storage /var/www/bootstrap/cache
+RUN chown -R www:www /var/www
 
 # Change current user to www
 USER www
 
+RUN composer install --no-scripts
+
 # Expose port 9000 and start php-fpm server
 EXPOSE 9000
+USER root
 CMD ["php-fpm"]

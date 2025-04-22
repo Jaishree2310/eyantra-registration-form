@@ -160,7 +160,7 @@ export default {
     const showSuccessModal = ref(false);
     const isLoading = ref(true);
     const apiError = ref('');
-    
+
     // Reference data for dropdowns
     const countries = ref([]);
     const colleges = ref([]);
@@ -184,32 +184,32 @@ export default {
     // Validation rules
     const rules = computed(() => {
       return {
-        name: { 
+        name: {
           required: helpers.withMessage('Name is required', required),
           nameFormat: helpers.withMessage('Name can only contain letters and spaces', nameValidator),
           minLength: helpers.withMessage('Name must be at least 3 characters', minLength(3))
         },
-        email: { 
+        email: {
           required: helpers.withMessage('Email is required', required),
           email: helpers.withMessage('Please enter a valid email address', email)
         },
-        contactNumber: { 
+        contactNumber: {
           required: helpers.withMessage('Contact number is required', required),
           phoneFormat: helpers.withMessage('Please enter a valid phone number (10-15 digits)', phoneValidator)
         },
-        gender: { 
+        gender: {
           required: helpers.withMessage('Please select your gender', required)
         },
-        country: { 
+        country: {
           required: helpers.withMessage('Please select your country', required)
         },
-        college: { 
+        college: {
           required: helpers.withMessage('Please select your college', required)
         },
-        year: { 
+        year: {
           required: helpers.withMessage('Please select your year', required)
         },
-        department: { 
+        department: {
           required: helpers.withMessage('Please select your department', required)
         }
       }
@@ -218,28 +218,36 @@ export default {
     const v$ = useVuelidate(rules, form);
 
     // Fetch reference data from API
+    // Fetch reference data from API
     const fetchReferenceData = async () => {
       isLoading.value = true;
       apiError.value = '';
-      
+
       try {
-        const [countriesResponse, collegesResponse, departmentsResponse] = await Promise.all([
-          apiService.referenceData.getCountries(),
-          apiService.referenceData.getColleges(),
-          apiService.referenceData.getDepartments()
-        ]);
-        
-        countries.value = countriesResponse.data;
-        colleges.value = collegesResponse.data;
-        departments.value = departmentsResponse.data;
+        console.log('Fetching reference data...');
+
+        // Fetch countries, then colleges and departments sequentially to reduce chance of errors
+        const countriesResponse = await apiService.referenceData.getCountries();
+        console.log('Countries fetched:', countriesResponse);
+        countries.value = countriesResponse.data || [];
+
+        const collegesResponse = await apiService.referenceData.getColleges();
+        console.log('Colleges fetched:', collegesResponse);
+        colleges.value = collegesResponse.data || [];
+
+        const departmentsResponse = await apiService.referenceData.getDepartments();
+        console.log('Departments fetched:', departmentsResponse);
+        departments.value = departmentsResponse.data || [];
+
+        console.log('All reference data fetched successfully');
       } catch (error) {
         console.error('Failed to fetch reference data', error);
-        apiError.value = 'Unable to load form data. Please refresh the page.';
+        apiError.value = 'Unable to load form data. Please refresh the page or try again later.';
       } finally {
         isLoading.value = false;
       }
     };
-    
+
     // Load data on component mount
     onMounted(() => {
       fetchReferenceData();
@@ -248,10 +256,10 @@ export default {
     const submitForm = async () => {
       const isFormValid = await v$.value.$validate();
       apiError.value = '';
-      
+
       if (isFormValid) {
         isSubmitting.value = true;
-        
+
         try {
           // Prepare data for submission
           const formData = {
@@ -259,18 +267,22 @@ export default {
             email: form.email,
             contact_number: form.contactNumber,
             gender: form.gender,
-            year: form.year,
-            department_id: form.department,
-            college_id: form.college,
-            country_id: form.country
+            year: parseInt(form.year), // Ensure year is sent as a number
+            department_id: parseInt(form.department), // Ensure IDs are sent as numbers
+            college_id: parseInt(form.college),
+            country_id: parseInt(form.country)
           };
-          
-          await apiService.registration.submit(formData);
+
+          console.log('Submitting form data:', formData);
+
+          const response = await apiService.registration.submit(formData);
+          console.log('Registration successful:', response);
+
           isSubmitting.value = false;
           showSuccessModal.value = true;
         } catch (error) {
           console.error('Registration failed', error);
-          
+
           if (error.response?.data?.errors) {
             // Handle validation errors from backend
             const serverErrors = error.response.data.errors;
@@ -286,12 +298,11 @@ export default {
           } else {
             apiError.value = 'Registration failed. Please try again.';
           }
-          
+
           isSubmitting.value = false;
         }
       }
     };
-
     const closeSuccessModal = () => {
       showSuccessModal.value = false;
       // Reset form after successful submission
