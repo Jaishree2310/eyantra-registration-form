@@ -1,14 +1,65 @@
 version: '3.8'
 
 services:
-  frontend:
+  # PHP Service
+  app:
     build:
-      context: ./frontend
+      context: ./backend
       dockerfile: Dockerfile
-    ports:
-      - "8080:80"
+    container_name: eyantra-app
+    restart: unless-stopped
+    working_dir: /var/www
     volumes:
-      - ./frontend:/app
-      - /app/node_modules
+      - ./backend:/var/www
+    networks:
+      - eyantra-network
+
+  # Nginx Service
+  webserver:
+    image: nginx:alpine
+    container_name: eyantra-webserver
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./backend:/var/www
+      - ./backend/.docker/nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - eyantra-network
+
+  # MySQL Service
+  db:
+    image: mysql:8.0
+    container_name: eyantra-db
+    restart: unless-stopped
     environment:
-      - NODE_ENV=development
+      MYSQL_DATABASE: ${DB_DATABASE:-eyantra}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+      MYSQL_USER: ${DB_USERNAME:-eyantra}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-password}
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - eyantra-data:/var/lib/mysql
+    networks:
+      - eyantra-network
+
+  # MailHog Service
+  mailhog:
+    image: mailhog/mailhog
+    container_name: eyantra-mailhog
+    ports:
+      - "1025:1025" # SMTP server
+      - "8025:8025" # Web UI
+    networks:
+      - eyantra-network
+
+networks:
+  eyantra-network:
+    driver: bridge
+
+volumes:
+  eyantra-data:
+    driver: local
