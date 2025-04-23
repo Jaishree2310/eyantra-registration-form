@@ -52,7 +52,7 @@ This application allows participants to register for e-Yantra robotics competiti
 - Vue.js 3 (Composition API)
 - Tailwind CSS
 - Vuelidate for form validation
-- Axios for API communication
+- Native Fetch API for API communication
 
 ### DevOps
 - Docker & Docker Compose

@@ -62,7 +62,7 @@ A flexible loading indicator with:
 
 ## API Integration
 
-The frontend communicates with the backend through the `api.js` service, which provides:
+The frontend communicates with the backend through the `api.js` service, which uses native Fetch API and provides:
 
 - Structured API client with error handling
 - Timeout management
