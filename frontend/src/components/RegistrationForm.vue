@@ -412,9 +412,9 @@ export default {
         } catch (error) {
           console.error('Registration failed', error);
 
-          if (error.response?.data?.errors) {
+          if (error.data?.errors) {
             // Handle validation errors from backend
-            const serverErrors = error.response.data.errors;
+            const serverErrors = error.data.errors;
             Object.keys(serverErrors).forEach(field => {
               if (v$.value[field]) {
                 v$.value[field].$errors.push({
@@ -422,8 +422,8 @@ export default {
                 });
               }
             });
-          } else if (error.response?.data?.message) {
-            apiError.value = error.response.data.message;
+          } else if (error.data?.message) {
+            apiError.value = error.data.message;
           } else {
             apiError.value = 'Registration failed. Please try again.';
           }
