@@ -1,12 +1,14 @@
+// src/services/api.js
+
 // Base configuration
 const baseURL = process.env.VUE_APP_API_URL || 'http://localhost:8000/api';
 const defaultHeaders = {
   'Content-Type': 'application/json',
   'Accept': 'application/json',
 };
-const timeout = 30000; // Increased timeout to 30 seconds
+const timeout = 30000; // 30 seconds timeout
 
-// Helper function to add auth token to headers (can remove if not needed)
+// Helper function to add auth token to headers if needed
 function createHeaders() {
   return defaultHeaders;
 }
@@ -20,58 +22,63 @@ function fetchWithTimeout(resource, options) {
   return fetch(resource, { 
     ...options, 
     signal,
-    mode: 'cors', // Add CORS mode
-    credentials: 'omit' // Changed from 'same-origin' to 'omit' to fix CORS issues
+    mode: 'cors',
+    credentials: 'omit' // Helps with CORS issues
   }).finally(() => clearTimeout(id));
 }
 
-// Helper function to handle request and response logic
+// API client with error handling
 async function apiClient(endpoint, options = {}) {
   const headers = createHeaders();
   try {
-    console.log(`Making ${options.method || 'GET'} request to: ${baseURL}${endpoint}`);
+    console.log(`API Request: ${options.method || 'GET'} to ${baseURL}${endpoint}`);
     
     const response = await fetchWithTimeout(`${baseURL}${endpoint}`, {
       ...options,
       headers,
     });
 
-    // For debugging
-    console.log(`Response status: ${response.status}`);
+    // Log response status
+    console.log(`API Response status: ${response.status}`);
 
+    // Handle error status codes
     if (!response.ok) {
-      // Handle specific error status codes
-      switch (response.status) {
-        case 401:
-          console.error('Unauthorized access');
-          break;
-        case 403:
-          console.error('Forbidden resource');
-          break;
-        case 404:
-          console.error('Resource not found');
-          break;
-        case 500:
-          console.error('Server error');
-          break;
-        default:
-          console.error('API error', await response.text());
-      }
-      throw new Error(`HTTP Error: ${response.status}`);
+      // Parse error response
+      const errorData = await response.json();
+      console.error('API error:', errorData);
+      
+      // Throw structured error with the response data
+      throw {
+        status: response.status,
+        data: errorData,
+        message: errorData.message || `Request failed with status: ${response.status}`
+      };
     }
 
-    return await response.json();
+    // Parse the JSON response
+    const data = await response.json();
+    return data;
   } catch (error) {
     if (error.name === 'AbortError') {
-      console.error('Network error - request timed out');
-    } else {
-      console.error('Error', error.message);
+      console.error('Request timeout - the server took too long to respond');
+      throw {
+        message: 'The request timed out. Please check your connection and try again.'
+      };
     }
-    throw error;
+    
+    // If we already created a structured error, just rethrow it
+    if (error.status || error.data || error.message) {
+      throw error;
+    }
+    
+    console.error('API request failed:', error.message);
+    throw {
+      message: error.message || 'An unexpected error occurred. Please try again.'
+    };
   }
 }
 
-// API functions
+// API service module
 export default {
   // Registration endpoints
   registration: {

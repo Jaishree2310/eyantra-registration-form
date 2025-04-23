@@ -1,5 +1,7 @@
+<!-- src/components/LoadingSpinner.vue -->
 <template>
   <div 
+    v-if="show"
     :class="[
       fullScreen ? 'fixed inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50' : '',
       !fullScreen && centered ? 'flex justify-center' : ''
@@ -11,7 +13,9 @@
         :class="[
           'animate-spin',
           sizeClasses,
-          color === 'primary' ? 'text-[#E31E24]' : color === 'white' ? 'text-white' : 'text-gray-500'
+          color === 'primary' ? 'text-[#E31E24]' : 
+          color === 'accent' ? 'text-[#F7D154]' : 
+          color === 'white' ? 'text-white' : 'text-gray-500'
         ]"
         xmlns="http://www.w3.org/2000/svg" 
         fill="none" 
@@ -33,7 +37,12 @@
       </svg>
       
       <!-- Optional loading text -->
-      <span v-if="text" class="mt-2 text-sm font-medium text-gray-700">{{ text }}</span>
+      <span 
+        v-if="text" 
+        class="mt-2 font-opensans text-sm font-medium text-[#333333]"
+      >
+        {{ text }}
+      </span>
     </div>
   </div>
 </template>
@@ -50,7 +59,7 @@ export default {
     color: {
       type: String,
       default: 'primary',
-      validator: value => ['primary', 'white', 'gray'].includes(value)
+      validator: value => ['primary', 'accent', 'white', 'gray'].includes(value)
     },
     text: {
       type: String,
@@ -61,6 +70,10 @@ export default {
       default: false
     },
     centered: {
+      type: Boolean,
+      default: true
+    },
+    show: {
       type: Boolean,
       default: true
     }

@@ -55,8 +55,6 @@ RUN echo '<?php\n\nuse Illuminate\\Foundation\\Inspiring;\nuse Illuminate\\Suppo
 
 # Set proper permissions for Laravel directories and files
 RUN chown -R www-data:www-data /var/www
-RUN find /var/www -type f -exec chmod 644 {} \;
-RUN find /var/www -type d -exec chmod 755 {} \;
 RUN chmod -R 755 /var/www/storage /var/www/bootstrap/cache
 
 # Ensure the log file exists and is writable
