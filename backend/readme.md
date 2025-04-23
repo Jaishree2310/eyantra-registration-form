@@ -1,227 +1,221 @@
 # e-Yantra Competition Registration Backend
 
-This is the Laravel backend API for the e-Yantra competition registration system. It provides RESTful endpoints for managing user registrations and reference data.
+The backend system for the e-Yantra Competition Registration platform, built with Laravel 10 and PHP 8.2. This API-driven application handles user registration and provides reference data endpoints.
 
-## Tech Stack
+## System Architecture
 
-- PHP 8.2
-- Laravel 10
-- MySQL 8
-- Docker
+The backend follows Laravel's MVC architecture:
 
-## Directory Structure
+- **Models**: Define database entities and relationships
+- **Controllers**: Handle API requests and responses
+- **Resources**: Transform model data for API responses
+- **Requests**: Validate incoming data
 
-```
-├── app/                   # Application code
-│   ├── Http/              
-│   │   ├── Controllers/   # API controllers
-│   │   ├── Middleware/    # HTTP middleware
-│   │   ├── Requests/      # Form request validation
-│   │   └── Resources/     # API resources (transformers)
-│   └── Models/            # Database models
-├── database/
-│   ├── migrations/        # Database table schemas
-│   └── seeders/           # Data seeders for reference data
-├── routes/                
-│   └── api.php            # API route definitions
-├── .docker/               # Docker configuration
-├── tests/                 # Test files
-├── Dockerfile             # PHP container definition
-```
+## Key Components
+
+### Models
+
+- `User`: Participant registration data
+- `Country`: Country reference data
+- `College`: College/University data with country relation
+- `Department`: Academic department data
+
+### API Controllers
+
+- `RegistrationController`: Handles user registration
+- `ReferenceDataController`: Provides country, college, and department data
+
+### Validation
+
+- `RegistrationRequest`: Validates registration form submissions
 
 ## API Endpoints
 
-### Reference Data
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/countries` | List all countries |
+| GET | `/api/colleges` | List all colleges with country info |
+| GET | `/api/departments` | List all departments |
+| POST | `/api/register` | Register a new participant |
 
-#### Get Countries
-```
-GET /api/countries
-```
+### Registration Endpoint
 
-Response:
+**Request Format**:
 ```json
 {
-  "data": [
-    { "id": 1, "name": "India", "code": "IN" },
-    { "id": 2, "name": "United States", "code": "US" },
-    { "id": 3, "name": "United Kingdom", "code": "GB" }
-  ]
+  "name": "String (required)",
+  "email": "String (required, valid email, unique)",
+  "contact_number": "String (required, valid format)",
+  "gender": "String (required, one of: male, female, other)",
+  "year": "Integer (required, 1-5)",
+  "department_id": "Integer (required, existing ID)",
+  "college_id": "Integer (required, existing ID)",
+  "country_id": "Integer (required, existing ID)"
 }
 ```
 
-#### Get Colleges
-```
-GET /api/colleges
-```
-
-Response:
-```json
-{
-  "data": [
-    {
-      "id": 1,
-      "name": "Indian Institute of Technology Bombay",
-      "city": "Mumbai",
-      "state": "Maharashtra",
-      "country": {
-        "id": 1,
-        "name": "India"
-      }
-    }
-  ]
-}
-```
-
-#### Get Departments
-```
-GET /api/departments
-```
-
-Response:
-```json
-{
-  "data": [
-    { "id": 1, "name": "Computer Science and Engineering" },
-    { "id": 2, "name": "Electrical Engineering" }
-  ]
-}
-```
-
-### Registration
-
-#### Register a New User
-```
-POST /api/register
-```
-
-Request Body:
-```json
-{
-  "name": "John Doe",
-  "email": "john.doe@example.com",
-  "contact_number": "+911234567890",
-  "gender": "male",
-  "year": 2,
-  "department_id": 1,
-  "college_id": 1,
-  "country_id": 1
-}
-```
-
-Response:
+**Response Format** (Success - 201):
 ```json
 {
   "message": "Registration successful",
   "user": {
     "id": 1,
     "name": "John Doe",
-    "email": "john.doe@example.com",
-    "contact_number": "+911234567890",
+    "email": "john@example.com",
+    "contact_number": "+1234567890",
     "gender": "male",
     "year": 2,
     "department_id": 1,
-    "college_id": 1,
+    "college_id": 3,
     "country_id": 1,
-    "created_at": "2025-04-23T10:00:00.000000Z",
-    "updated_at": "2025-04-23T10:00:00.000000Z"
+    "created_at": "2025-04-23T12:34:56.000000Z",
+    "updated_at": "2025-04-23T12:34:56.000000Z"
   }
 }
 ```
 
+**Response Format** (Validation Error - 422):
+```json
+{
+  "message": "The given data was invalid.",
+  "errors": {
+    "email": ["The email has already been taken."],
+    "contact_number": ["The contact number format is invalid."]
+  }
+}
+```
+
+## Database Schema
+
+### countries
+- `id` - Primary key
+- `name` - Country name
+- `code` - Country code (ISO)
+- `timestamps`
+
+### colleges
+- `id` - Primary key
+- `name` - College name
+- `country_id` - Foreign key to countries
+- `city` - Optional city
+- `state` - Optional state
+- `timestamps`
+
+### departments
+- `id` - Primary key
+- `name` - Department name
+- `timestamps`
+
+### users
+- `id` - Primary key
+- `name` - Full name
+- `email` - Email (unique)
+- `contact_number` - Phone number
+- `gender` - Enum: male, female, other
+- `year` - Year of study
+- `department_id` - Foreign key to departments
+- `college_id` - Foreign key to colleges
+- `country_id` - Foreign key to countries
+- `timestamps`
+
 ## Development Setup
 
-### Using Docker
+### Using Docker (Recommended)
 
-1. Ensure you are in the project root directory (not the backend directory)
-2. Start the Docker containers:
+The backend is configured to run inside a Docker container as part of the entire application stack.
+
+1. From the project root directory, start the containers:
    ```bash
-   docker-compose up -d
-   ```
-3. Install dependencies:
-   ```bash
-   docker-compose exec app composer install
-   ```
-4. Generate app key:
-   ```bash
-   docker-compose exec app php artisan key:generate
-   ```
-5. Run migrations and seeders:
-   ```bash
-   docker-compose exec app php artisan migrate --seed
+   docker compose up -d
    ```
 
-### Local Development
+2. The backend API will be available at `http://localhost:8000/api`
 
-If you prefer to run the backend locally without Docker:
+### Using PHP Directly
 
-1. Ensure you have PHP 8.2+ and Composer installed
+If you prefer to run the backend directly on your system:
+
+1. Requirements:
+   - PHP 8.2+
+   - Composer
+   - MySQL 8.0
+
 2. Install dependencies:
    ```bash
+   cd backend
    composer install
    ```
-3. Copy the example environment file:
+
+3. Create .env file:
    ```bash
    cp .env.example .env
    ```
-4. Update the database connection in `.env` with your database credentials
-5. Generate app key:
+
+4. Configure database in .env:
+   ```
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=eyantra
+   DB_USERNAME=your_username
+   DB_PASSWORD=your_password
+   ```
+
+5. Generate application key:
    ```bash
    php artisan key:generate
    ```
+
 6. Run migrations and seeders:
    ```bash
-   php artisan migrate --seed
+   php artisan migrate:fresh --seed
    ```
-7. Start the development server:
+
+7. Start development server:
    ```bash
    php artisan serve
    ```
 
-## Database Schema
+## Common Commands
 
-### Countries
-- `id` - Primary key
-- `name` - Country name 
-- `code` - Country code (ISO 3166-1 alpha-2)
+Inside the Docker container:
+```bash
+# Execute artisan commands
+docker compose exec app php artisan list
 
-### Colleges
-- `id` - Primary key
-- `name` - College name
-- `country_id` - Foreign key to countries
-- `city` - City name
-- `state` - State or region
+# Run migrations
+docker compose exec app php artisan migrate
 
-### Departments
-- `id` - Primary key
-- `name` - Department name
+# Generate model
+docker compose exec app php artisan make:model NewModel -mcr
 
-### Users
-- `id` - Primary key
-- `name` - Full name
-- `email` - Email address (unique)
-- `contact_number` - Phone number
-- `gender` - Gender (male, female, other)
-- `year` - Year of study (1-5)
-- `department_id` - Foreign key to departments
-- `college_id` - Foreign key to colleges
-- `country_id` - Foreign key to countries
+# Clear cache
+docker compose exec app php artisan cache:clear
+```
 
 ## Testing
 
-Run tests with PHPUnit:
+The backend includes tests for API endpoints:
 
 ```bash
-php artisan test
+# Run all tests
+docker compose exec app php artisan test
+
+# Run specific test
+docker compose exec app php artisan test --filter=RegistrationTest
 ```
 
-## Contributing
+## Deployment Considerations
 
-When contributing to the backend:
-
-1. Follow the Laravel coding style
-2. Add appropriate validation for new endpoints
-3. Update any API documentation
-4. Write tests for new features
+- Set appropriate values in .env for production
+- Optimize Laravel for production:
+  ```bash
+  php artisan config:cache
+  php artisan route:cache
+  php artisan optimize
+  ```
+- Ensure appropriate file permissions
+- Configure proper CORS settings for production domains
 
 ## License
 

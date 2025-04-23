@@ -1,64 +1,97 @@
 # e-Yantra Competition Registration System
 
-A full-stack application for managing the registration process for e-Yantra robotics competitions. This system includes a Laravel backend API with MySQL database and a Vue.js frontend, all containerized with Docker for easy deployment.
+A full-stack application for managing the registration process for e-Yantra robotics competitions hosted at IIT Bombay. The system features a Laravel backend API with MySQL database and a Vue.js frontend, all containerized with Docker for easy deployment.
 
-## Project Overview
+## System Overview
 
-The competition registration system allows students to register for e-Yantra robotics competitions with the following features:
+This application allows participants to register for e-Yantra robotics competitions with the following features:
 
-- User registration form with validation
+- User-friendly registration form with client-side validation
+- Backend validation and data storage
 - Reference data management (countries, colleges, departments)
-- Responsive, mobile-friendly design
-- Docker-based development environment
-- API-driven architecture
+- Mobile-responsive design with Tailwind CSS
+- Dockerized environment for easy setup and deployment
+- Automated testing tools for form submission
 
 ## Repository Structure
 
 ```
+├── automation/            # Test automation tools
+│   ├── eyantra_form_automator.py # Selenium-based form testing
+│   └── requirements.txt   # Python dependencies
 ├── backend/               # Laravel API
-│   ├── .docker/           # Docker configuration files for the backend
-│   ├── app/               # Laravel application code
-│   ├── database/          # Database migrations and seeders
+│   ├── app/               # Application code
+│   │   ├── Http/          # Controllers, middleware, requests
+│   │   ├── Models/        # Database models
+│   │   └── Providers/     # Service providers
+│   ├── database/          # Migrations and seeders
 │   ├── routes/            # API route definitions
 │   ├── Dockerfile         # Backend container definition
-│   └── readme.md          # Backend-specific documentation
-├── frontend/              # Vue.js frontend application
+│   └── ... other Laravel files
+├── frontend/              # Vue.js frontend
 │   ├── src/               # Vue source code
 │   │   ├── components/    # Vue components
 │   │   ├── services/      # API service modules
-│   │   └── assets/        # Frontend assets
-│   ├── public/            # Static assets
+│   │   └── assets/        # CSS and other assets
 │   ├── Dockerfile         # Frontend container definition
-│   └── readme.md          # Frontend-specific documentation
-├── automation/            # Test automation scripts
-│   ├── eyantra_form_automator.py # Selenium form automation script
-│   └── requirements.txt    # Python dependencies
-├── docker-compose.yaml    # Docker Compose configuration
-├── deploy.sh              # Deployment script for easy setup
-└── readme.md              # This file
+│   └── nginx.conf         # Nginx configuration
+├── docker-compose.yaml    # Multi-container Docker setup
+├── deploy.sh              # Deployment automation script
+└── README.md              # This file
 ```
 
 ## Tech Stack
 
 ### Backend
-- Laravel 10
-- MySQL 8
 - PHP 8.2
-- Docker
+- Laravel 10
+- MySQL 8.0
+- Nginx (webserver)
 
 ### Frontend
 - Vue.js 3 (Composition API)
 - Tailwind CSS
-- Axios for API communication
 - Vuelidate for form validation
+- Axios for API communication
 
-## Getting Started
+### DevOps
+- Docker & Docker Compose
+- Bash deployment script
+- Selenium automation testing
+
+## Quick Start
 
 ### Prerequisites
-- Docker and Docker Compose installed on your system
+- Docker and Docker Compose
 - Git
 
 ### Installation
+
+The easiest way to set up the project is using the deployment script:
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd <repository-directory>
+
+# Make the deploy script executable
+chmod +x deploy.sh
+
+# Run the deployment script
+./deploy.sh
+```
+
+The deployment script will:
+1. Check for Docker and Docker Compose
+2. Set up required configuration files
+3. Build and start all Docker containers
+4. Install dependencies
+5. Run database migrations and seed reference data
+6. Optimize the Laravel application
+
+### Manual Setup
+
+If you prefer to set up manually:
 
 1. Clone the repository:
    ```bash
@@ -66,105 +99,127 @@ The competition registration system allows students to register for e-Yantra rob
    cd <repository-directory>
    ```
 
-2. Start the Docker environment:
+2. Create necessary directories:
    ```bash
-   docker-compose up -d
+   mkdir -p backend/.docker/nginx/conf.d
    ```
 
-3. Set up the backend:
+3. Start the Docker environment:
    ```bash
-   docker-compose exec app composer install
-   docker-compose exec app php artisan key:generate
-   docker-compose exec app php artisan migrate --seed
-   docker-compose exec app php artisan storage:link
+   docker compose up -d
    ```
 
-### Alternative Installation Using Deploy Script
-
-For a quick setup, you can use the included deployment script:
-
-```bash
-chmod +x deploy.sh
-./deploy.sh
-```
-
-This script will:
-- Check if Docker is installed
-- Set up configuration files
-- Build and start Docker containers
-- Install dependencies
-- Migrate and seed the database
-- Optimize the Laravel application
+4. Set up the backend:
+   ```bash
+   docker compose exec app composer install
+   docker compose exec app php artisan key:generate
+   docker compose exec app php artisan migrate:fresh --seed
+   docker compose exec app php artisan storage:link
+   ```
 
 ## Accessing the Application
 
-After installation, you can access the following services:
+After installation, you can access:
 
-- Frontend: http://localhost:8080
-- Backend API: http://localhost:8000/api
-- MailHog (Email Testing): http://localhost:8025
+- **Frontend**: http://localhost:8080
+- **Backend API**: http://localhost:8000/api
+- **Database**: localhost:3306 (credentials in docker-compose.yaml)
 
 ## API Documentation
 
-The API provides the following endpoints:
+### Reference Data Endpoints
 
-### Reference Data
-- `GET /api/countries` - Get list of countries
-- `GET /api/colleges` - Get list of colleges
-- `GET /api/departments` - Get list of departments
+#### Get Countries
+```
+GET /api/countries
+```
 
-### Registration
-- `POST /api/register` - Register a user
-
-### Example Request for Registration
-
+Response:
 ```json
+{
+  "data": [
+    { "id": 1, "name": "India", "code": "IN" },
+    { "id": 2, "name": "United States", "code": "US" }
+  ]
+}
+```
+
+#### Get Colleges
+```
+GET /api/colleges
+```
+
+#### Get Departments
+```
+GET /api/departments
+```
+
+### Registration Endpoint
+
+```
 POST /api/register
+```
+
+Request Body:
+```json
 {
   "name": "John Doe",
   "email": "john.doe@example.com",
-  "contact_number": "+1234567890",
+  "contact_number": "+91 9876543210",
   "gender": "male",
   "year": 2,
   "department_id": 1,
   "college_id": 3,
-  "country_id": 2
+  "country_id": 1
 }
 ```
 
 ## Test Automation
 
-The project includes a Selenium-based automation script for testing the registration form. Requirements:
-
-- Python 3.7+
-- Selenium WebDriver
-- Chrome browser
-
-To use the automation script:
+The system includes a Selenium-based Python script for automating registration form submissions:
 
 ```bash
+# Install dependencies
 cd automation
 pip install -r requirements.txt
+
+# Run the automation script
 python eyantra_form_automator.py http://localhost:8080 --count 5 --delay 2
 ```
+
+Parameters:
+- `url`: The URL of the registration form
+- `--count`: Number of submissions to make
+- `--delay`: Delay between submissions in seconds
+- `--headless`: Run in headless mode (optional)
 
 ## Development
 
 ### Backend Development
 
-The backend is a standard Laravel application with the following customizations:
-- API routes defined in `/backend/routes/api.php`
-- Models in `/backend/app/Models/`
-- Controllers in `/backend/app/Http/Controllers/API/`
-- Database migrations and seeders for reference data
+The backend uses Laravel with API resources for structured responses. Key files:
+
+- `routes/api.php`: API route definitions
+- `app/Http/Controllers/API/`: API controllers
+- `app/Models/`: Database models
+- `database/migrations/`: Database schema
+
+To run backend commands:
+```bash
+docker compose exec app php artisan <command>
+```
 
 ### Frontend Development
 
-The frontend is built with Vue.js 3 and includes:
-- Responsive form layout with Tailwind CSS
-- Form validation using Vuelidate
-- API integration through service modules
-- Component-based architecture
+The frontend is built with Vue.js 3 using the Composition API. Key files:
+
+- `src/components/RegistrationForm.vue`: Main registration form
+- `src/services/api.js`: API communication service
+
+To access frontend logs:
+```bash
+docker compose logs -f frontend
+```
 
 ## Contributing
 

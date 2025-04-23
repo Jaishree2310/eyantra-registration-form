@@ -1,144 +1,190 @@
 # e-Yantra Competition Registration Frontend
 
-This is the Vue.js frontend for the e-Yantra competition registration system. It provides a responsive, user-friendly interface for participants to register for e-Yantra robotics competitions.
+A responsive Vue.js 3 application for the e-Yantra competition registration system, designed to provide a seamless user experience for competition participants.
 
-## Tech Stack
-
-- Vue.js 3 (Composition API)
-- Tailwind CSS for styling
-- Vuelidate for form validation
-- Axios for API communication
-
-## Directory Structure
-
-```
-├── public/               # Static assets
-│   └── index.html        # HTML entry point with meta tags
-├── src/                  # Vue source code
-│   ├── assets/           # CSS and other assets
-│   │   └── tailwind.css  # Tailwind configuration
-│   ├── components/       # Vue components
-│   │   ├── ApiErrorMessage.vue   # Error display component
-│   │   ├── Footer.vue            # Site footer
-│   │   ├── FormField.vue         # Reusable form field
-│   │   ├── Header.vue            # Site header
-│   │   ├── LoadingSpinner.vue    # Loading indicator
-│   │   └── RegistrationForm.vue  # Main registration form
-│   ├── services/         # API services
-│   │   └── api.js        # API client module
-│   ├── App.vue           # Main application component
-│   └── main.js           # Vue application entry point
-├── Dockerfile            # Docker configuration
-└── nginx.conf            # Nginx server configuration
-```
+![e-Yantra Frontend](https://www.e-yantra.org/images/home/logo.svg)
 
 ## Features
 
-- **Responsive Design**: Mobile-first approach with Tailwind CSS
-- **Form Validation**: Client-side validation with Vuelidate
-- **API Integration**: Communicates with Laravel backend
-- **Error Handling**: User-friendly error messages
-- **Loading States**: Visual loading indicators during API calls
-- **Success Feedback**: Modal confirmation for successful submissions
+- **Responsive Design**: Mobile-first layout using Tailwind CSS
+- **Form Validation**: Real-time validation with Vuelidate
+- **API Integration**: Seamless communication with the Laravel backend
+- **User-Friendly Experience**: Loading states, error messages, and success confirmations
+- **Brand-Aligned Design**: Custom styling matching e-Yantra's visual identity
 
 ## Component Structure
 
+The application is built using a component-based architecture:
+
+```
+src/
+├── assets/
+│   └── tailwind.css       # Custom Tailwind configuration
+├── components/
+│   ├── ApiErrorMessage.vue    # Error display component
+│   ├── Footer.vue             # Site footer
+│   ├── FormField.vue          # Reusable form field component
+│   ├── Header.vue             # Site header with navigation
+│   ├── LoadingSpinner.vue     # Loading indicator
+│   └── RegistrationForm.vue   # Main registration form
+├── services/
+│   └── api.js             # API client and services
+├── App.vue                # Main application component
+└── main.js               # Vue application entry point
+```
+
+## Main Components
+
 ### RegistrationForm
 
-The main registration form component includes:
-
-- Personal information fields (name, email, contact, gender)
-- Academic information (country, college, year, department)
-- Terms and conditions acceptance
-- Form validation with visual feedback
-- Success modal after registration
+The core of the application, handling:
+- Form data management with reactive state
+- Validation using Vuelidate
+- API communication for form submission
+- Loading states and error handling
+- Success confirmation
 
 ### FormField
 
-A reusable component for form fields that provides:
-
-- Consistent styling
-- Label with required indicator
+A reusable component that provides:
+- Consistent form styling
+- Label and help text
 - Error message display
-- Help text support
+- Required field indicators
 
 ### LoadingSpinner
 
-A flexible loading indicator that can be:
+A flexible loading indicator with:
+- Customizable size (sm, md, lg, xl)
+- Color options (primary, accent, white, gray)
+- Full-screen or inline display
+- Optional text display
 
-- Used inline or full-screen
-- Sized from small to extra large
-- Colored to match brand colors
-- Accompanied by custom text
+## API Integration
+
+The frontend communicates with the backend through the `api.js` service, which provides:
+
+- Structured API client with error handling
+- Timeout management
+- CORS handling
+- Resource-specific service methods
+
+## Design System
+
+The application implements a custom design system based on Tailwind CSS:
+
+### Colors
+- **Primary**: #E31E24 (Red)
+- **Accent**: #F7D154 (Yellow)
+- **Neutral**: #333333 (Dark Gray)
+
+### Typography
+- **Headings**: Montserrat (Bold)
+- **Body**: Open Sans
+
+### Components
+- Custom button styles
+- Form input styling
+- Card and modal designs
 
 ## Development Setup
 
 ### Prerequisites
-
 - Node.js 16+ and npm
-- Vue CLI installed globally (optional)
+- Git
 
 ### Installation
 
-1. Install dependencies:
+1. Clone the repository and navigate to the frontend directory:
+   ```bash
+   git clone <repository-url>
+   cd <repository-directory>/frontend
+   ```
+
+2. Install dependencies:
    ```bash
    npm install
    ```
 
-2. Start the development server:
+3. Start the development server:
    ```bash
    npm run serve
    ```
 
-3. Access the development server at http://localhost:8080
+4. The application will be available at `http://localhost:8080`
 
 ### Using Docker
 
-To run the frontend using Docker:
+If you're using Docker with the full application stack:
 
-1. Build and start the container:
+1. Start the Docker environment from the project root:
    ```bash
-   docker-compose up -d frontend
+   docker compose up -d
    ```
 
-2. Access the application at http://localhost:8080
+2. The frontend will be available at `http://localhost:8080`
+
+3. View frontend container logs:
+   ```bash
+   docker compose logs -f frontend
+   ```
 
 ## Building for Production
 
-To create a production build:
+Create a production build:
 
 ```bash
 npm run build
 ```
 
-This will create a `dist` folder with optimized files ready for deployment.
+The compiled files will be in the `dist/` directory, ready to be served by any static file server.
 
-## API Configuration
+## Environment Configuration
 
-The frontend communicates with the backend API using the `api.js` service. Configuration options:
+The application uses the following environment variables:
 
-- **Base URL**: Set in `src/services/api.js` or through the `VUE_APP_API_URL` environment variable
-- **Timeout**: Default is 30 seconds
-- **Error Handling**: Structured error responses for forms
-- **CORS Support**: Configured for cross-origin requests
+- `VUE_APP_API_URL`: Backend API URL (default: `http://localhost:8000/api`)
 
-## Styling
+These can be configured in a `.env` file or passed through Docker environment variables.
 
-The application uses Tailwind CSS with custom configuration to match the e-Yantra branding:
+## Form Validation
 
-- **Primary Color**: #E31E24 (Red)
-- **Accent Color**: #F7D154 (Yellow)
-- **Neutral Color**: #333333 (Dark Gray)
-- **Fonts**: Montserrat for headings, Open Sans for body text
+The registration form validates:
 
-## Contributing
+- **Name**: Letters and spaces only, 3+ characters
+- **Email**: Valid email format, required
+- **Contact Number**: Valid phone number format
+- **Gender**: Required selection
+- **Country/College/Department**: Required selections
+- **Year of Study**: Valid selection
+- **Terms Acceptance**: Must be accepted
 
-When contributing to the frontend:
+## Customization
 
-1. Follow the Vue.js style guide
-2. Use the existing component patterns
-3. Maintain the responsive design
-4. Test across different browsers and devices
+### Modifying the Form
+
+To add or modify form fields:
+
+1. Update the form structure in `RegistrationForm.vue`
+2. Add validation rules in the `rules` computed property
+3. Update the API submission format in the `submitForm` method
+
+### Styling Changes
+
+The application uses Tailwind CSS with custom configuration:
+
+1. Edit `src/assets/tailwind.css` for global styles
+2. Component-specific styles are in their respective `.vue` files
+
+## Testing
+
+For manual testing:
+
+1. Start the application
+2. Fill out the form with valid/invalid data to test validation
+3. Submit the form to test API integration
+
+For automated testing, use the included Selenium script in the `automation/` directory (see main repository README).
 
 ## License
 
