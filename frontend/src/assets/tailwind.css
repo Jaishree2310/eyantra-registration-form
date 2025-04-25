@@ -1,0 +1,108 @@
+/* src/assets/tailwind.css */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  
+  body {
+    font-family: 'Open Sans', sans-serif;
+    @apply text-[#333333] bg-gray-50;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat', sans-serif;
+    @apply font-bold;
+  }
+
+  h1 {
+    @apply text-4xl md:text-5xl; /* 36px/48px */
+  }
+
+  h2 {
+    @apply text-3xl; /* 30px */
+  }
+
+  h3 {
+    @apply text-2xl; /* 24px */
+  }
+
+  h4 {
+    @apply text-xl; /* 20px */
+  }
+  
+  /* Focus ring styling for accessibility */
+  :focus {
+    @apply outline-none ring-2 ring-[#E31E24] ring-offset-2;
+  }
+}
+
+@layer components {
+  /* Button Styles */
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-6 py-3 bg-[#E31E24] text-white font-montserrat font-bold rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors;
+  }
+  
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-6 py-3 border-2 border-[#E31E24] text-[#E31E24] font-montserrat font-bold rounded-lg hover:bg-red-50 focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors;
+  }
+
+  .btn-accent {
+    @apply inline-flex items-center justify-center px-6 py-3 bg-[#F7D154] text-[#333333] font-montserrat font-bold rounded-lg hover:bg-yellow-400 focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400 transition-colors;
+  }
+  
+  /* Form control styling */
+  .form-input,
+  .form-select,
+  .form-textarea {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-[#E31E24] focus:ring-[#E31E24] font-opensans text-[#333333] transition-colors;
+  }
+  
+  .form-input.error,
+  .form-select.error,
+  .form-textarea.error {
+    @apply border-[#E31E24] focus:border-[#E31E24] focus:ring-[#E31E24];
+  }
+  
+  .form-radio,
+  .form-checkbox {
+    @apply h-5 w-5 text-[#E31E24] border-gray-300 focus:ring-[#E31E24];
+  }
+
+  /* Card component */
+  .card {
+    @apply bg-white border border-gray-200 rounded-lg shadow-sm p-6;
+  }
+  
+  /* Font utility classes */
+  .font-montserrat {
+    font-family: 'Montserrat', sans-serif;
+  }
+  
+  .font-opensans {
+    font-family: 'Open Sans', sans-serif;
+  }
+  
+  /* Brand color utility classes */
+  .text-primary {
+    @apply text-[#E31E24];
+  }
+  
+  .text-accent {
+    @apply text-[#F7D154];
+  }
+  
+  .bg-primary {
+    @apply bg-[#E31E24];
+  }
+  
+  .bg-accent {
+    @apply bg-[#F7D154];
+  }
+}
