@@ -9,6 +9,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from faker import Faker
+from locators import Locators
 
 class EYantraFormAutomator:
     def __init__(self, url, headless=False):
@@ -40,7 +41,7 @@ class EYantraFormAutomator:
             print(f"Navigated to {self.url}")
             
             # Wait for form to be fully loaded
-            self.wait.until(EC.presence_of_element_located((By.TAG_NAME, "form")))
+            self.wait.until(EC.presence_of_element_located(*Locators.form))
             return True
         except TimeoutException:
             print("Error: Form page took too long to load")
@@ -50,13 +51,13 @@ class EYantraFormAutomator:
         """Wait for dropdown elements to be populated."""
         try:
             # Wait for country dropdown to have options
-            self.wait.until(lambda d: len(d.find_elements(By.CSS_SELECTOR, "select[v-model='form.country'] option")) > 1)
+            self.wait.until(lambda d: len(d.find_elements(By.XPATH, "//select[@class='form-select']//option[text()='Select your country']")) > 0)
             
             # Wait for college dropdown to have options
-            self.wait.until(lambda d: len(d.find_elements(By.CSS_SELECTOR, "select[v-model='form.college'] option")) > 1)
+            self.wait.until(lambda d: len(d.find_elements(By.XPATH, "//select[@class='form-select']//option[text()='Select your college']")) > 0)
             
             # Wait for department dropdown to have options
-            self.wait.until(lambda d: len(d.find_elements(By.CSS_SELECTOR, "select[v-model='form.department'] option")) > 1)
+            self.wait.until(lambda d: len(d.find_elements(By.XPATH, "//select[@class='form-select']//option[text()='Select your department']")) > 0)
             
             return True
         except TimeoutException:
@@ -104,28 +105,29 @@ class EYantraFormAutomator:
         """Fill the registration form with provided or random data."""
         try:
             # Fill text inputs
-            self.driver.find_element(By.CSS_SELECTOR, "input[v-model='form.name']").send_keys(data['name'])
-            self.driver.find_element(By.CSS_SELECTOR, "input[v-model='form.email']").send_keys(data['email'])
-            self.driver.find_element(By.CSS_SELECTOR, "input[v-model='form.contactNumber']").send_keys(data['contact_number'])
+            self.driver.find_element(By.XPATH, "//*[text()='Full Name ']//following-sibling::input").send_keys(data['name'])
+            self.driver.find_element(By.XPATH, "//*[text()='Email ID ']//following-sibling::input").send_keys(data['email'])
+            self.driver.find_element(By.XPATH, "//*[text()='Contact Number ']//following-sibling::input").send_keys(data['contact_number'])
             
             # Select gender
-            gender_radio = self.driver.find_element(By.CSS_SELECTOR, f"input[value='{data['gender']}']")
+            gender_radio = self.driver.find_element(By.XPATH, f"""//input[@type='radio' and @value='{data["gender"]}']""")
             gender_radio.click()
             
             # Select dropdowns
-            country_select = self.driver.find_element(By.CSS_SELECTOR, "select[v-model='form.country']")
+            country_select = self.driver.find_element(By.XPATH, "//option[text()='Select your country']//parent::select")
             self.select_random_option(country_select)
             
-            college_select = self.driver.find_element(By.CSS_SELECTOR, "select[v-model='form.college']")
+            college_select = self.driver.find_element(By.XPATH, "//option[text()='Select your college']//parent::select")
             self.select_random_option(college_select)
             
-            year_select = self.driver.find_element(By.CSS_SELECTOR, "select[v-model='form.year']")
-            # For year, we'll use the provided year
-            year_option = year_select.find_element(By.CSS_SELECTOR, f"option[value='{data['year']}']")
-            year_option.click()
+            year_select = self.driver.find_element(By.XPATH, "//option[text()='Select your year']//parent::select")
+            self.select_random_option(year_select)
             
-            department_select = self.driver.find_element(By.CSS_SELECTOR, "select[v-model='form.department']")
+            department_select = self.driver.find_element(By.XPATH, "//option[text()='Select your department']//parent::select")
             self.select_random_option(department_select)
+            
+            terms_checkbox = self.driver.find_element(By.XPATH, "//input[@type='checkbox']")
+            terms_checkbox.click()
             
             print(f"Filled form with data: {data}")
             return True
@@ -137,25 +139,25 @@ class EYantraFormAutomator:
         """Submit the form and handle potential success modal."""
         try:
             # Submit the form
-            submit_button = self.driver.find_element(By.CSS_SELECTOR, "button[type='submit']")
+            submit_button = self.driver.find_element(By.XPATH, "//button[@type='submit']")
             submit_button.click()
             
             # Wait for either success modal or error message
             try:
                 # Check if success modal appears
-                self.wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, ".fixed.inset-0.flex.items-center")))
+                self.wait.until(EC.visibility_of_element_located((By.XPATH, "//button[text()=' Close ']")))
                 print("Form submitted successfully! Success modal detected.")
                 
                 # Close the modal
-                close_button = self.driver.find_element(By.CSS_SELECTOR, ".fixed.inset-0 button")
+                close_button = self.driver.find_element(By.XPATH, "//button[text()=' Close ']")
                 close_button.click()
                 
                 # Wait for modal to close
-                self.wait.until(EC.invisibility_of_element_located((By.CSS_SELECTOR, ".fixed.inset-0.flex.items-center")))
+                self.wait.until(EC.invisibility_of_element_located((By.XPATH, "//button[text()=' Close ']")))
                 return True
             except TimeoutException:
                 # Check if there are error messages
-                error_messages = self.driver.find_elements(By.CSS_SELECTOR, ".text-[#E31E24]")
+                error_messages = self.driver.find_elements(By.XPATH, ".text-[#E31E24]")
                 if error_messages:
                     errors = [err.text for err in error_messages if err.text]
                     print(f"Form submission failed with errors: {errors}")
