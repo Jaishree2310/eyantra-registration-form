@@ -1,4 +1,3 @@
-<!-- src/components/ApiErrorMessage.vue -->
 <template>
     <div v-if="show" class="bg-red-50 border-l-4 border-[#E31E24] p-6 rounded mb-6">
       <div class="flex">

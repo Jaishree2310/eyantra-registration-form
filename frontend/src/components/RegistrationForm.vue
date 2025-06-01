@@ -1,4 +1,3 @@
-<!-- src/components/RegistrationForm.vue -->
 <template>
   <div class="max-w-3xl mx-auto">
     <!-- Page Title -->

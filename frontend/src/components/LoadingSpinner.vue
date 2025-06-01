@@ -1,4 +1,3 @@
-<!-- src/components/LoadingSpinner.vue -->
 <template>
   <div 
     v-if="show"

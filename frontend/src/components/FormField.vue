@@ -1,4 +1,3 @@
-<!-- src/components/FormField.vue -->
 <template>
   <div class="mb-6">
     <label class="block font-montserrat font-bold text-[#333333] mb-2">

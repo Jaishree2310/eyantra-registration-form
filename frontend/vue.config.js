@@ -13,6 +13,9 @@ module.exports = {
       port: 8080,
       // Proxy API requests to backend server during development
       proxy: {
+        devServer: {
+        proxy: 'http://localhost:8000/',
+    },
         '/api': {
           target: process.env.VUE_APP_API_URL || 'http://localhost:3000',
           changeOrigin: true,

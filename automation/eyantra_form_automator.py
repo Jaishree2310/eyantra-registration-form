@@ -9,7 +9,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from faker import Faker
-from locators import Locators
+# from locators import Locators
 
 class EYantraFormAutomator:
     def __init__(self, url, headless=False):
@@ -41,7 +41,7 @@ class EYantraFormAutomator:
             print(f"Navigated to {self.url}")
             
             # Wait for form to be fully loaded
-            self.wait.until(EC.presence_of_element_located(*Locators.form))
+            # self.wait.until(EC.presence_of_element_located(*Locators.form))
             return True
         except TimeoutException:
             print("Error: Form page took too long to load")
